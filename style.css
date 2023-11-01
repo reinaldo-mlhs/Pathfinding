@@ -1,0 +1,17 @@
+body {
+    box-sizing: border-box;
+}
+
+#container {
+    display: flex;
+    height: 800px;
+    gap: 10px;
+}
+
+#controls {
+    box-sizing: border-box;
+    width: 200px;
+    height: 100%;
+    border: 1px solid;
+    padding: 10px;
+}

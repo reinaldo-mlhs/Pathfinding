@@ -3,15 +3,17 @@
   <head>
     <meta charset="utf-8" />
     <title>Canvas tutorial</title>
-    <style>
-      canvas {
-        border: 1px solid black;
-      }
-    </style>
+    <link rel="stylesheet" href="style.css">
   </head>
   <body>
-    <button id="go">GO</button>
-    <div id="konva"></div>
+
+    <div id="container">
+      <div id="controls">
+        <button id="go">GO</button>
+      </div>
+      
+      <div id="konva"></div>
+    </div>
     
     <script src="/konva.js"></script>
     <script defer type="module" src="/main.js"></script>
