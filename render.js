@@ -37,7 +37,7 @@ export class Render {
         this.layer.add(rect);
     }
 
-    drawGraph(graph, path = [], startId, targetId) {
+    drawGraph(astar, graph, path = [], startId, targetId) {
 
         // reset layer
         this.stage.destroyChildren();
@@ -59,7 +59,7 @@ export class Render {
         });
 
         Object.keys(graph.nodes)
-            .filter(key => graph.nodes[key].id === startId || graph.nodes[key].id === targetId)
+            // .filter(key => graph.nodes[key].id === startId || graph.nodes[key].id === targetId)
             .forEach(key => {
                 const node = graph.nodes[key];
                 const nodeX = node.point.x;
@@ -100,7 +100,7 @@ export class Render {
                 const nodeIdText = new Konva.Text({
                     x: -10,
                     y: -29,
-                    text: node.id === startId ? "A" : node.id === targetId ? "B" : "N",
+                    text: node.id === startId ? "A" : node.id === targetId ? "B" : node.id,
                     fontSize: 18,
                     fontFamily: 'Calibri',
                     fill: '#FFF',
@@ -129,6 +129,27 @@ export class Render {
                             lines[`${edge.nodeA.id}-${edge.nodeB.id}`].attrs.points[3] = group.attrs.y;
                         }
                     })
+                });
+
+
+
+                group.on('pointerdown', function () {
+                    console.log(group)
+                    const selectField = document.querySelector('#select');
+                    console.dir(selectField.checked);
+                    group.children[2].attrs["fill"] = "green";
+
+                    let start = astar.start;
+                    let target = astar.target;
+
+                    if (selectField.checked) {
+                        target = node;
+                    }
+                    else {
+                        start = node;
+                    }
+
+                    astar.setup(start.id, target.id);
                 });
 
             });

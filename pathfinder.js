@@ -156,8 +156,8 @@ export class AStar {
         this.graph = graph;
         this.heuristicFunction = heuristicFunction;
 
-        this.start = null;
-        this.target = null;
+        this.startID = null;
+        this.targetID = null;
 
         this.visited = {};
         this.unvisited = {};
@@ -176,19 +176,24 @@ export class AStar {
         return Math.abs(node1.point.x - node2.point.x) + Math.abs(node1.point.y - node2.point.y);
     }
 
-    setStart(node) {
-        this.start = node;
+    reset() {
+        this.finished = false;
+        this.path = [];
+        this.visited = {};
+        this.unvisited = window.structuredClone(this.graph.nodes);
     }
 
-    setTarget(startNode, target) {
-        this.target = target;
-        startNode.g = 0;
-        startNode.f = this.heuristicFunction(startNode, target);
+    setStart(id) {
+        this.startID = id;
     }
 
-    setup(startId, endId) {
-        this.setStart(this.graph.nodes[startId]);
-        this.setTarget(this.graph.nodes[startId], this.graph.nodes[endId]);
+    setTarget(id) {
+        this.targetID = id;
+    }
+
+    setup(startId, targetID) {
+        this.setStart(startId)
+        this.setTarget(targetID);
     }
 
     // setupGrid(startId, endId, obstacles, dim = 10) {
@@ -203,12 +208,12 @@ export class AStar {
     // }
 
     run() {
-        this.finished = false;
-        this.path = [];
-        this.visited = {};
-        this.unvisited = window.structuredClone(this.graph.nodes);
+        this.reset();
 
-        this.step();
+        this.unvisited[this.startID].g = 0;
+        this.unvisited[this.startID].f = this.heuristicFunction(this.unvisited[this.startID], this.unvisited[this.targetID]);
+
+        this.step(false);
     }
 
     step(stepped = false) {
@@ -232,7 +237,7 @@ export class AStar {
 
             //console.log(current);
 
-            if (current.id === this.target.id) {
+            if (current.id === this.targetID) {
                 this.finished = true
                 this.visited[current["id"]] = this.unvisited[current["id"]];
                 delete this.unvisited[current["id"]];
@@ -250,7 +255,7 @@ export class AStar {
 
                         if (new_g < this.unvisited[neighbor["id"]]["g"]) {
                             this.unvisited[neighbor["id"]]["g"] = new_g;
-                            this.unvisited[neighbor["id"]]["f"] = new_g + this.heuristicFunction(neighbor, this.target);
+                            this.unvisited[neighbor["id"]]["f"] = new_g + this.heuristicFunction(neighbor, this.unvisited[this.targetID]);
                             this.unvisited[neighbor["id"]]["previous"] = current;
                         }
                     }
@@ -268,7 +273,7 @@ export class AStar {
         }
     }
 
-    generatePath(currentNode = this.target, currentEdge = null) {
+    generatePath(currentNode = this.visited[this.targetID], currentEdge = null) {
 
         if (currentEdge) {
             this.path.push(currentEdge);
