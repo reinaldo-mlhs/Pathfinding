@@ -23,6 +23,7 @@ export class Node {
 
 export class Graph {
     constructor(graphBase = null) {
+        this.graphBase = graphBase;
         this.nodes = this.buildNodes(graphBase);
         this.edges = this.buildEdges(graphBase);
 
@@ -156,8 +157,8 @@ export class AStar {
         this.graph = graph;
         this.heuristicFunction = heuristicFunction;
 
-        this.startID = null;
-        this.targetID = null;
+        this.startID = "START";
+        this.targetID = "TARGET";
 
         this.visited = {};
         this.unvisited = {};
@@ -176,6 +177,43 @@ export class AStar {
         return Math.abs(node1.point.x - node2.point.x) + Math.abs(node1.point.y - node2.point.y);
     }
 
+    redrawGraph(type, point, newNeighbors) {
+        this.reset();
+        console.log(type, point, newNeighbors);
+        const oldNeighbors = this.graph.graphBase[type].neighbors;
+        console.log(oldNeighbors)
+
+        const tempGraphBase = {
+            ...this.graph.graphBase,
+            [type]: {
+                pos: point,
+                neighbors: newNeighbors
+            }
+        }
+
+        oldNeighbors.forEach((n, index) => {
+            if (index === 0) {
+                tempGraphBase[n].neighbors.splice(tempGraphBase[n].neighbors.indexOf(type), 1, oldNeighbors[1]);
+            }
+            else {
+                tempGraphBase[n].neighbors.splice(tempGraphBase[n].neighbors.indexOf(type), 1, oldNeighbors[0]);
+            }
+        });
+
+        newNeighbors.forEach((n, index) => {
+            if (index === 0) {
+                tempGraphBase[n].neighbors.splice(tempGraphBase[n].neighbors.indexOf(newNeighbors[1]), 1, type);
+            }
+            else {
+                tempGraphBase[n].neighbors.splice(tempGraphBase[n].neighbors.indexOf(newNeighbors[0]), 1, type);
+            }
+        });
+
+        console.log(tempGraphBase)
+        this.graph = new Graph(tempGraphBase);
+        console.log(this.graph);
+    }
+
     reset() {
         this.finished = false;
         this.path = [];
@@ -183,18 +221,18 @@ export class AStar {
         this.unvisited = window.structuredClone(this.graph.nodes);
     }
 
-    setStart(id) {
-        this.startID = id;
-    }
+    // setStart(id) {
+    //     this.startID = id;
+    // }
 
-    setTarget(id) {
-        this.targetID = id;
-    }
+    // setTarget(id) {
+    //     this.targetID = id;
+    // }
 
-    setup(startId, targetID) {
-        this.setStart(startId)
-        this.setTarget(targetID);
-    }
+    // setup(startId, targetID) {
+    //     this.setStart(startId)
+    //     this.setTarget(targetID);
+    // }
 
     // setupGrid(startId, endId, obstacles, dim = 10) {
     //     this.graph = new Graph();

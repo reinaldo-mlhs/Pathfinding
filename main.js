@@ -2,13 +2,21 @@ import { AStar, Graph, Node } from "./pathfinder.js";
 import { Render } from "./render.js";
 
 const graphBase  = {
+    START: {
+        pos: {x: 65, y: 50},
+        neighbors: ["a", "b"]
+    },
+    TARGET: {
+        pos: {x: 175, y: 200},
+        neighbors: ["g", "h"]
+    },
     a: {
         pos: {x: 50, y: 50},
-        neighbors: ["b", "d"]
+        neighbors: ["START", "d"]
     },
     b: {
         pos: {x: 150, y: 50},
-        neighbors: ["a", "c", "e"]
+        neighbors: ["START", "c", "e"]
     },
     c: {
         pos: {x: 200, y: 50},
@@ -28,17 +36,17 @@ const graphBase  = {
     },
     g: {
         pos: {x: 150, y: 200},
-        neighbors: ["e", "h"]
+        neighbors: ["e", "TARGET"]
     },
     h: {
         pos: {x: 200, y: 200},
-        neighbors: ["g", "f"]
+        neighbors: ["TARGET", "f"]
     }
 };
 
 const graph = new Graph(graphBase);
 const aStarSearch = new AStar(graph, AStar.heuristicEuclidean);
-aStarSearch.setup("a", "g");
+// aStarSearch.setup("START", "TARGET");
 
 const size = 800;
 const renderer = new Render("konva", size, size);
@@ -52,25 +60,25 @@ function onButtonClick() {
     console.log(aStarSearch.path);
 }
 
-function onFieldChange(e, type) {
-    if (type === "start") {
-        aStarSearch.setup(e.key, aStarSearch.targetID);
-    }
-    else if (type === "destination") {
-        aStarSearch.setup(aStarSearch.startID, e.key);
-    }
-    console.log(aStarSearch)
-    renderer.drawGraph(aStarSearch, aStarSearch.graph, [], aStarSearch.startID, aStarSearch.targetID);
-}
+// function onFieldChange(e, type) {
+//     if (type === "start") {
+//         aStarSearch.setup(e.key, aStarSearch.targetID);
+//     }
+//     else if (type === "destination") {
+//         aStarSearch.setup(aStarSearch.startID, e.key);
+//     }
+//     console.log(aStarSearch)
+//     renderer.drawGraph(aStarSearch, aStarSearch.graph, [], aStarSearch.startID, aStarSearch.targetID);
+// }
 
 const button = document.querySelector('button');
 button.addEventListener('click', onButtonClick);
 
-const startField = document.querySelector('#start');
-startField.addEventListener('keypress', (e) => onFieldChange(e, "start"));
+// const startField = document.querySelector('#start');
+// startField.addEventListener('keypress', (e) => onFieldChange(e, "start"));
 
-const destinationField = document.querySelector('#destination');
-destinationField.addEventListener('keypress', (e) => onFieldChange(e, "destination"));
+// const destinationField = document.querySelector('#destination');
+// destinationField.addEventListener('keypress', (e) => onFieldChange(e, "destination"));
 
 
 

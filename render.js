@@ -45,6 +45,8 @@ export class Render {
         this.stage.add(this.layer);
         this.drawBackground();
 
+        console.log(astar)
+
         const lines = {};
 
         graph.edges.forEach(edge => {
@@ -53,105 +55,154 @@ export class Render {
                 stroke: graph.isEdgeInPath(edge, path) ? "blue" : "#FFFFFF",
                 strokeWidth: 5,
                 lineCap: 'round',
-                lineJoin: 'round'
+                lineJoin: 'round',
             });
             this.layer.add(lines[`${edge.nodeA.id}-${edge.nodeB.id}`]);
         });
 
-        Object.keys(graph.nodes)
-            // .filter(key => graph.nodes[key].id === startId || graph.nodes[key].id === targetId)
-            .forEach(key => {
-                const node = graph.nodes[key];
-                const nodeX = node.point.x;
-                const nodeY = node.point.y;
+        drawNode(graph, this.layer, startId, "START", astar);
+        drawNode(graph, this.layer, targetId, "TARGET", astar);
 
-                const group = new Konva.Group({
-                    x: nodeX,
-                    y: nodeY,
-                    draggable: true
-                });
-
-                const line = new Konva.Line({
-                    points: [0, 0, 0, -20],
-                    stroke: "black",
-                    strokeWidth: 2,
-                    lineCap: 'round',
-                    lineJoin: 'round'
-                });
-
-                const circleSmall = new Konva.Circle({
-                    x: 0,
-                    y: 0,
-                    radius: 2,
-                    fill: "black",
-                    stroke: 'black',
-                    strokeWidth: 1,
-                });
-
-                const circle = new Konva.Circle({
-                    x: 0,
-                    y: -20,
-                    radius: 10,
-                    fill: node.id === startId ? "#9E9E9E" : node.id === targetId ? "red" : "orange",
-                    stroke: 'black',
-                    strokeWidth: 1,
-                });
-
-                const nodeIdText = new Konva.Text({
-                    x: -10,
-                    y: -29,
-                    text: node.id === startId ? "A" : node.id === targetId ? "B" : node.id,
-                    fontSize: 18,
-                    fontFamily: 'Calibri',
-                    fill: '#FFF',
-                    width: 20,
-                    padding: 0,
-                    align: 'center',
-                });
-
-                group.add(line);
-                group.add(circleSmall);
-                group.add(circle);
-                group.add(nodeIdText);
-                this.layer.add(group);
-
-                group.on("dragmove", () => {
-                    node.point = { x: group.attrs.x, y: group.attrs.y };
-                    graph.edges.forEach(edge => {
-                        if (edge.nodeA.id === node.id) {
-                            edge.nodeA.point = { x: group.attrs.x, y: group.attrs.y };
-                            lines[`${edge.nodeA.id}-${edge.nodeB.id}`].attrs.points[0] = group.attrs.x;
-                            lines[`${edge.nodeA.id}-${edge.nodeB.id}`].attrs.points[1] = group.attrs.y;
-                        }
-                        else if (edge.nodeB.id === node.id) {
-                            edge.nodeB.point = { x: group.attrs.x, y: group.attrs.y };
-                            lines[`${edge.nodeA.id}-${edge.nodeB.id}`].attrs.points[2] = group.attrs.x;
-                            lines[`${edge.nodeA.id}-${edge.nodeB.id}`].attrs.points[3] = group.attrs.y;
-                        }
-                    })
-                });
-
-
-
-                group.on('pointerdown', function () {
-                    console.log(group)
-                    const selectField = document.querySelector('#select');
-                    console.dir(selectField.checked);
-                    group.children[2].attrs["fill"] = "green";
-
-                    let start = astar.start;
-                    let target = astar.target;
-
-                    if (selectField.checked) {
-                        target = node;
-                    }
-                    else {
-                        start = node;
-                    }
-
-                    astar.setup(start.id, target.id);
-                });
-
-            });
     }
 }
+
+
+function drawNode(graph, layer, id, type, astar) {
+
+    const node = graph.nodes[id];
+    const nodeX = node.point.x;
+    const nodeY = node.point.y;
+
+    const group = new Konva.Group({
+        x: nodeX,
+        y: nodeY,
+        draggable: true
+    });
+
+    const line = new Konva.Line({
+        points: [0, 0, 0, -20],
+        stroke: "black",
+        strokeWidth: 2,
+        lineCap: 'round',
+        lineJoin: 'round'
+    });
+
+    const circleSmall = new Konva.Circle({
+        x: 0,
+        y: 0,
+        radius: 2,
+        fill: "black",
+        stroke: 'black',
+        strokeWidth: 1,
+    });
+
+    const circle = new Konva.Circle({
+        x: 0,
+        y: -20,
+        radius: 10,
+        fill: type === "START" ? "#9E9E9E" : type === "TARGET" ? "red" : "orange",
+        stroke: 'black',
+        strokeWidth: 1,
+    });
+
+    const nodeIdText = new Konva.Text({
+        x: -10,
+        y: -29,
+        text: type === "START" ? "A" : type === "TARGET" ? "B" : "",
+        fontSize: 18,
+        fontFamily: 'Calibri',
+        fill: '#FFF',
+        width: 20,
+        padding: 0,
+        align: 'center',
+    });
+
+    group.add(line);
+    group.add(circleSmall);
+    group.add(circle);
+    group.add(nodeIdText);
+    layer.add(group);
+
+
+    // group.on("dragmove", () => {
+    //     // node.point = { x: group.attrs.x, y: group.attrs.y };
+
+    //     let distance = 0;
+    //     let nearestPoint = {x: 0, y: 0};
+
+    //     graph.edges.forEach(edge => {
+    //         // pointAtLine()
+    //         const d = calcDistancePointToLine(edge.nodeA.point,edge.nodeB.point,{x: group.attrs.x, y: group.attrs.y});
+    //         if (d < 15 && calcIsInsideLineSegment(edge.nodeA.point,edge.nodeB.point,{x: group.attrs.x, y: group.attrs.y})) {
+    //             const temp = calcNearestPointOnLine(edge.nodeA.point,edge.nodeB.point,{x: group.attrs.x, y: group.attrs.y});
+    //             console.log(temp);
+
+    //             const circleSmall2 = new Konva.Circle({
+    //                 x: temp.x,
+    //                 y: temp.y,
+    //                 radius: 4,
+    //                 fill: "black",
+    //                 stroke: 'black',
+    //                 strokeWidth: 1,
+    //             });
+            
+    //             layer.add(circleSmall2);
+    //         }
+    //     })
+    // });
+
+    group.on("dragend", () => {
+
+        let distance = 9999;
+        let nearestPoint = null;
+        let neighbors = [];
+        
+        graph.edges.forEach(edge => {
+
+            const d = calcDistancePointToLine(edge.nodeA.point,edge.nodeB.point,{x: group.attrs.x, y: group.attrs.y});
+            if (d < 150 && distance > d && calcIsInsideLineSegment(edge.nodeA.point,edge.nodeB.point,{x: group.attrs.x, y: group.attrs.y})) {
+                distance = d;
+                nearestPoint = calcNearestPointOnLine(edge.nodeA.point,edge.nodeB.point,{x: group.attrs.x, y: group.attrs.y});
+                neighbors = [edge.nodeA.id, edge.nodeB.id];
+            }
+        })
+
+        if (nearestPoint) {
+            group.absolutePosition(nearestPoint);
+            node.point = nearestPoint;
+            astar.redrawGraph(type, nearestPoint, neighbors);
+        }
+    });
+
+}
+
+
+//Returns {.x, .y}, a projected point perpendicular on the (infinite) line.
+function calcNearestPointOnLine(line1, line2, pnt) {
+    var L2 = ( ((line2.x - line1.x) * (line2.x - line1.x)) + ((line2.y - line1.y) * (line2.y - line1.y)) );
+    if(L2 == 0) return false;
+    var r = ( ((pnt.x - line1.x) * (line2.x - line1.x)) + ((pnt.y - line1.y) * (line2.y - line1.y)) ) / L2;
+
+    return {
+        x: line1.x + (r * (line2.x - line1.x)), 
+        y: line1.y + (r * (line2.y - line1.y))
+    };
+}
+
+//Returns float, the shortest distance to the (infinite) line.
+function calcDistancePointToLine(line1, line2, pnt) {
+    var L2 = ( ((line2.x - line1.x) * (line2.x - line1.x)) + ((line2.y - line1.y) * (line2.y - line1.y)) );
+    if(L2 == 0) return false;
+    var s = (((line1.y - pnt.y) * (line2.x - line1.x)) - ((line1.x - pnt.x) * (line2.y - line1.y))) / L2;
+    return Math.abs(s) * Math.sqrt(L2);
+}
+
+//Returns bool, whether the projected point is actually inside the (finite) line segment.
+function calcIsInsideLineSegment(line1, line2, pnt) {
+    var L2 = ( ((line2.x - line1.x) * (line2.x - line1.x)) + ((line2.y - line1.y) * (line2.y - line1.y)) );
+    if(L2 == 0) return false;
+    var r = ( ((pnt.x - line1.x) * (line2.x - line1.x)) + ((pnt.y - line1.y) * (line2.y - line1.y)) ) / L2;
+
+    return (0 <= r) && (r <= 1);
+}
+
