@@ -179,9 +179,13 @@ export class AStar {
 
     redrawGraph(type, point, newNeighbors) {
         this.reset();
-        console.log(type, point, newNeighbors);
+        // console.log(type, point, newNeighbors);
         const oldNeighbors = this.graph.graphBase[type].neighbors;
-        console.log(oldNeighbors)
+        // console.log(oldNeighbors);
+
+        if (newNeighbors.includes(type)) {
+            newNeighbors.splice(newNeighbors.indexOf(type), 1, this.graph.graphBase[type].neighbors.find(neighbor => neighbor !== type));
+        }
 
         const tempGraphBase = {
             ...this.graph.graphBase,
@@ -209,9 +213,7 @@ export class AStar {
             }
         });
 
-        console.log(tempGraphBase)
         this.graph = new Graph(tempGraphBase);
-        console.log(this.graph);
     }
 
     reset() {

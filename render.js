@@ -24,10 +24,10 @@ export class Render {
         });
 
         const rect = new Konva.Rect({
-            x: 20,
-            y: 20,
-            width: this.width - 40,
-            height: this.height - 40,
+            x: 10,
+            y: 10,
+            width: this.width - 20,
+            height: this.height - 20,
             fill: '#E0E0E0',
             stroke: 'black',
             strokeWidth: 1,
@@ -57,8 +57,21 @@ export class Render {
                 lineCap: 'round',
                 lineJoin: 'round',
             });
-            this.layer.add(lines[`${edge.nodeA.id}-${edge.nodeB.id}`]);
+            
         });
+
+        const sortedLines = Object.keys(lines).sort((a, b) => {
+            if (lines[a].attrs.stroke > lines[b].attrs.stroke) {
+                return 1;
+            }
+            else {
+                return -1;
+            }
+        });
+
+        sortedLines.forEach(key => {
+            this.layer.add(lines[key]);
+        })
 
         drawNode(graph, this.layer, startId, "START", astar);
         drawNode(graph, this.layer, targetId, "TARGET", astar);

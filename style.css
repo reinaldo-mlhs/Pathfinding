@@ -3,15 +3,13 @@ body {
 }
 
 #container {
-    display: flex;
+    position: relative;
     height: 800px;
-    gap: 10px;
 }
 
-#controls {
-    box-sizing: border-box;
-    width: 200px;
-    height: 100%;
-    border: 1px solid;
-    padding: 10px;
+#go {
+    position: absolute;
+    z-index: 99;
+    top: 30px;
+    left: 710px;
 }
