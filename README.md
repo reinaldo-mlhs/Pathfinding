@@ -2,7 +2,7 @@
 
 Demo of pathfinding algorithm.
 
-Live demo at [GitHub Page](https://reinaldo-mlhs.github.io/pathfinding/).
+Live demo at [GitHub Page](https://reinaldo-mlhs.github.io/Pathfinding/).
 
 ### To do:
 
